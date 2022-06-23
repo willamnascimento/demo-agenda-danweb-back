@@ -1,0 +1,32 @@
+version: '3'
+services:
+  mssql-server:
+    image: mcr.microsoft.com/azure-sql-edge
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "solucao#2021"
+    ports:
+      - "1433:1433"
+    cpus: "0.5"
+    mem_limit: 2048m
+    volumes:
+      - /var/db:/var/opt/mssql/data
+  solucao-api:
+    image: solucao-api:1.0
+    cpus: "0.5"
+    mem_limit: 50m
+    build: 
+      context: .
+      dockerfile: Solucao.API/Dockerfile
+    depends_on:
+      - mssql-server
+    environment:
+      DbServer: "mssql-server"
+      DbPort: "1433"
+      DbUser: "SA"
+      Password: "solucao#2021"
+      Database: "SolucaoDB"
+    ports: 
+      - "8090:80"
+
+        

@@ -1,0 +1,5 @@
+06/17/2022 21:37:49 - Information: 14 - Now listening on: https://localhost:8091
+06/17/2022 21:37:49 - Information: 14 - Now listening on: http://localhost:8080
+06/17/2022 21:37:49 - Information: 0 - Application started. Press Ctrl+C to shut down.
+06/17/2022 21:37:49 - Information: 0 - Hosting environment: Development
+06/17/2022 21:37:49 - Information: 0 - Content root path: /Users/will.i.am/git/solucao/Solucao.API

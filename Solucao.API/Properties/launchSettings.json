@@ -1,0 +1,52 @@
+﻿{
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:44399",
+      "sslPort": 44398
+    }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DbServer": "3.225.254.252",
+        "DbPort": "32593",
+        "DbUser": "SA",
+        "Database": "SolucaoDB",
+        "Password": "S0luc@o2022",
+        "Development": "False",
+        "LogPath": "C:\\Users\\Willism\\Documents"
+      }
+    },
+    "Solucao.API": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DbServer": "44.206.38.149",
+        "DbPort": "32593",
+        "DbUser": "SA",
+        "Database": "SolucaoDB",
+        "Password": "S0luc@o2022",
+        "Development": "False",
+        "LogPath": "/Users/will.i.am/logs"
+      },
+      "dotnetRunMessages": "true",
+      "applicationUrl": "https://localhost:8091;http://localhost:8080"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
+      "publishAllPorts": true,
+      "useSSL": true
+    }
+  }
+}
