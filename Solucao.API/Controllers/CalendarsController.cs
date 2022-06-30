@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Solucao.Application.Contracts;
 using Solucao.Application.Contracts.Requests;
 using Solucao.Application.Data.Entities;
@@ -18,15 +19,18 @@ namespace Solucao.API.Controllers
 {
     [Route("api/v1")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class CalendarsController : ControllerBase
     {
         private readonly ICalendarService calendarService;
         private readonly IUserService userService;
-        public CalendarsController(ICalendarService _calendarService, IUserService _userService)
+        private readonly ILogger<CalendarsController> logger;
+
+        public CalendarsController(ICalendarService _calendarService, IUserService _userService, ILogger<CalendarsController> _logger)
         {
             calendarService = _calendarService;
             userService = _userService;
+            logger = _logger;
         }
 
         [HttpGet("calendar")]
@@ -36,6 +40,7 @@ namespace Solucao.API.Controllers
         [SwaggerResponse((int)HttpStatusCode.NotFound, Type = typeof(ApplicationError))]
         public async Task<IEnumerable<EquipamentList>> GetAllAsync([FromQuery] CalendarRequest model)
         {
+            logger.LogInformation($"{nameof(CalendarsController)} -{nameof(GetAllAsync)} | Inicio da chamada");
             return await calendarService.GetAllByDate(model.Date);
         }
 
@@ -46,6 +51,7 @@ namespace Solucao.API.Controllers
         [SwaggerResponse((int)HttpStatusCode.NotFound, Type = typeof(ApplicationError))]
         public async Task<IEnumerable<CalendarViewModel>> AvailabilityAsync([FromQuery] CalendarRequest model)
         {
+            logger.LogInformation($"{nameof(CalendarsController)} -{nameof(AvailabilityAsync)} | Inicio da chamada");
             return await calendarService.Availability(model.StartDate, model.EndDate, model.ClientId, model.EquipamentId);
         }
 
@@ -56,11 +62,13 @@ namespace Solucao.API.Controllers
         [SwaggerResponse((int)HttpStatusCode.NotFound, Type = typeof(ApplicationError))]
         public async Task<IActionResult> PostAsync([FromBody] CalendarViewModel model)
         {
+            logger.LogInformation($"{nameof(CalendarsController)} - {nameof(PostAsync)} | Inicio da chamada");
             ValidationResult result;
-            result = await calendarService.ValidateLease(model.Date, model.ClientId, model.EquipamentId, model.CalendarSpecifications, model.StartTime1);
+            result = await calendarService.ValidateLease(model.Date, model.ClientId, model.EquipamentId, model.CalendarSpecifications, model.StartTime1, model.EndTime1);
 
             if (result != null)
             {
+                logger.LogWarning($"{nameof(CalendarsController)} -{nameof(PostAsync)} | Erro na criacao - {result}");
                 if (!result.ErrorMessage.Contains("minutos"))
                     return NotFound(result);
                 else
@@ -85,7 +93,7 @@ namespace Solucao.API.Controllers
         public async Task<IActionResult> PutAsync([FromBody] CalendarViewModel model)
         {
             ValidationResult result;
-            result = await calendarService.ValidateLease(model.Date, model.ClientId, model.EquipamentId, model.CalendarSpecifications, model.StartTime1);
+            result = await calendarService.ValidateLease(model.Date, model.ClientId, model.EquipamentId, model.CalendarSpecifications, model.StartTime1, model.EndTime1);
 
             if (result != null)
             {
@@ -130,6 +138,22 @@ namespace Solucao.API.Controllers
         {
             ValidationResult result;
             result = await calendarService.UpdateStatusOrTravelOnCalendar(model.CalendarId.Value, model.Status, model.TravelOn, model.IsTravelOn);
+
+            if (result != null)
+                return NotFound(result);
+
+            return Ok(result);
+        }
+
+        [HttpPut("calendar/update-contract-made")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(Calendar))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(ApplicationError))]
+        [SwaggerResponse((int)HttpStatusCode.Conflict, Type = typeof(ApplicationError))]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, Type = typeof(ApplicationError))]
+        public async Task<IActionResult> UpdateContractMadeAsync([FromBody] CalendarRequest model)
+        {
+            ValidationResult result;
+            result = await calendarService.UpdateContractMade(model.CalendarId.Value);
 
             if (result != null)
                 return NotFound(result);

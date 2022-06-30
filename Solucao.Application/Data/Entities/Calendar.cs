@@ -26,6 +26,7 @@ namespace Solucao.Application.Data.Entities
         public Guid? TechniqueId { get; set; }
         public Guid UserId { get; set; }
         public int TravelOn { get; set; }
+        public bool ContractMade { get; set; }
         public User User { get; set; }
         public Person Technique { get; set; }
         public Person Driver { get; set; }

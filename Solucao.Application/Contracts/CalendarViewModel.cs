@@ -29,6 +29,7 @@ namespace Solucao.Application.Contracts
         public Guid? UserId { get; set; }
         public Guid? ParentId { get; set; }
         public int TravelOn { get; set; }
+        public bool ContractMade { get; set; }
         public User User { get; set; }
         public Person Technique { get; set; }
         public Person Driver { get; set; }

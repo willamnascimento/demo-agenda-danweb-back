@@ -126,47 +126,50 @@ namespace Solucao.Application.Service.Implementations
             return null;
         }
 
-        public async Task<ValidationResult> ValidateLease(DateTime date, Guid clientId, Guid equipamentId, IList<CalendarSpecifications> specifications, string startTime)
+        public async Task<ValidationResult> ValidateLease(DateTime date, Guid clientId, Guid equipamentId, IList<CalendarSpecifications> specifications, string startTime, string endTime)
         {
             try
             {
                 var startTime_ = DateTime.Parse(date.ToString("yyyy-MM-dd ") + startTime.Replace(":", "").Insert(2, ":"));
+                var endTime_ = DateTime.Parse(date.ToString("yyyy-MM-dd ") + endTime.Replace(":", "").Insert(2, ":"));
 
-                // Valida se o equipamento ja esta em uso
-                var result = await calendarRepository.ValidateEquipament(date, clientId, equipamentId);
+                // obtem todas as locacoes do dia
+                var result = await calendarRepository.GetCalendarsByDate(date);
 
-                if (!result.Any())
+                if (ValidEquipamentInUse(result, equipamentId, clientId, startTime_, endTime_))
+                    return new ValidationResult("Para data e hora informada, equipamento já está em uso.");
+
+                // Valida se a ponteira ja esta em uso com outro equipamento
+                // Os equipamentos podem compartilhar a mesma ponteira
+                var temp = specifications.Where(x => x.Active).ToList();
+
+                var r = await calendarRepository.GetSpecificationsByDate(date, temp);
+
+                var res = await calendarRepository.GetCalendarBySpecificationsAndDate(temp, date, startTime_);
+
+               
+                foreach (var item in temp)
                 {
-                    // Valida se a ponteira ja esta em uso com outro equipamento
-                    // Os equipamentos podem compartilhar a mesma ponteira
-                    var temp = specifications.Where(x => x.Active).ToList();
+                    var spec = await specificationRepository.GetById(item.SpecificationId);
+                    var counter = await calendarRepository.SpecCounterBySpec(item.SpecificationId, date, startTime_);
 
-                    var res = await calendarRepository.GetCalendarBySpecificationsAndDate(temp, date, startTime_);
+                    if (counter >= spec.Amount )
+                        return new ValidationResult($"Para data e hora informada, ponteira já está em uso. ({spec.Name})");
+                }
+                
 
-                    if (res.Any())
-                    {
-                        foreach (var item in temp)
-                        {
-                            var spec = await specificationRepository.GetById(item.SpecificationId);
-                            var counter = await calendarRepository.SpecCounterBySpec(item.SpecificationId, date, startTime_);
-
-                            if (counter >= spec.Amount )
-                                return new ValidationResult($"Para data e hora informada, ponteira já está em uso. ({spec.Name})");
-                        }
-                    }
-
-                    // Valida se a ponteira/especificação é unica
-                    if (specifications.Any())
-                    {
-                        var valid = await ValidIfSpecInUse(temp, date);
-                        if (!valid)
-                            return new ValidationResult($"Para data e hora informada, dispositivo ÚNICO está em uso.");
-
-                    }
-
-                    return ValidationResult.Success;
+                // Valida se a ponteira/especificação é unica
+                if (specifications.Any())
+                {
+                    var valid = await ValidIfSpecInUse(temp, date);
+                    if (!valid)
+                        return new ValidationResult($"Para data e hora informada, dispositivo ÚNICO está em uso.");
 
                 }
+
+                return ValidationResult.Success;
+
+                
 
                 foreach (var item in result)
                 {
@@ -200,23 +203,6 @@ namespace Solucao.Application.Service.Implementations
         public async Task<IEnumerable<CalendarViewModel>> Availability(DateTime startDate, DateTime endDate, Guid? clientId, Guid? equipamentId)
         {
             return mapper.Map<IEnumerable<CalendarViewModel>>(await calendarRepository.Availability(startDate, endDate, clientId, equipamentId));
-        }
-
-        private async Task<bool> ValidIfSpecInUse(IList<CalendarSpecifications> specifications, DateTime date)
-        {
-            var singleSpec = await specificationRepository.GetSingleSpec();
-
-            if (singleSpec != null)
-            {
-                if (specifications.Any(x => x.SpecificationId == singleSpec.Id))
-                {
-                    var resp = await calendarRepository.SingleSpecCounter(singleSpec.Id, date);
-
-                    if (resp > 0)
-                        return false;
-                }
-            }
-            return true;
         }
 
         public async Task<IEnumerable<EquipamentList>> GetAllByDate(DateTime date)
@@ -283,6 +269,57 @@ namespace Solucao.Application.Service.Implementations
             {
                 throw;
             }
+        }
+
+        public async Task<ValidationResult> UpdateContractMade(Guid id)
+        {
+            try
+            {
+                var calendar = await calendarRepository.GetById(id);
+                calendar.ContractMade = !calendar.ContractMade;
+
+                await calendarRepository.Update(calendar);
+
+                return ValidationResult.Success;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private async Task<bool> ValidIfSpecInUse(IList<CalendarSpecifications> specifications, DateTime date)
+        {
+            var singleSpec = await specificationRepository.GetSingleSpec();
+
+            if (singleSpec != null)
+            {
+                if (specifications.Any(x => x.SpecificationId == singleSpec.Id))
+                {
+                    var resp = await calendarRepository.SingleSpecCounter(singleSpec.Id, date);
+
+                    if (resp > 0)
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        
+
+        private bool ValidEquipamentInUse(IEnumerable<Calendar> calendars, Guid equipamentId, Guid clientId, DateTime start, DateTime end)
+        {
+            var inUse = false;
+
+            foreach (var calendar in calendars.Where(x => x.EquipamentId == equipamentId && x.ClientId != clientId))
+            {
+                if ((start >= calendar.StartTime && start <= calendar.EndTime) ||
+                    (end >= calendar.StartTime && end <= calendar.EndTime) ||
+                    (start <= calendar.StartTime && end >= calendar.EndTime))
+                    return true;
+            }
+
+            return inUse;
         }
     }
 }

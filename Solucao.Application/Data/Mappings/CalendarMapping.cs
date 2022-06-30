@@ -66,6 +66,9 @@ namespace Solucao.Application.Data.Mappings
 
             builder.Property(c => c.TravelOn)
                 .HasColumnType("int");
+
+            builder.Property(c => c.ContractMade)
+                .HasColumnType("bit");
         }
     }
 }

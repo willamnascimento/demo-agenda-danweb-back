@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NetDevPack.Data;
+using Solucao.Application.Contracts.Response;
 using Solucao.Application.Data.Entities;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,9 @@ namespace Solucao.Application.Data.Repositories
         public IUnitOfWork UnitOfWork => Db;
         protected readonly SolucaoContext Db;
         protected readonly DbSet<Calendar> DbSet;
-        public CalendarRepository(SolucaoContext _context)
+        private List<string> notIn = new List<string> { "3", "4" };
+
+    public CalendarRepository(SolucaoContext _context)
         {
             Db = _context;
             DbSet = Db.Set<Calendar>();
@@ -23,7 +26,7 @@ namespace Solucao.Application.Data.Repositories
 
         public async Task<IEnumerable<Calendar>> GetAll(DateTime date)
         {
-            var notIn = new List<string> { "3", "4" };
+            
 
             return await Db.Calendars.Include(x => x.Equipament)
                                          .Include(x => x.Client.City)
@@ -72,10 +75,43 @@ namespace Solucao.Application.Data.Repositories
 
         }
 
+        public async Task<IEnumerable<Calendar>> GetCalendarsByDate(DateTime date)
+        {
+
+            return await Db.Calendars
+                .Include(x => x.CalendarSpecifications)
+                .Where(x => x.Date.Date == date.Date && !notIn.Contains(x.Status) && x.Active)
+                .OrderBy(x => x.Status)
+                .OrderBy(x => x.Client.Name).ToListAsync();
+
+        }
+
+        public async Task<List<Calendar>> GetSpecificationsByDate(DateTime date, List<CalendarSpecifications> list)
+        {
+            var in_ = list.Select(x => x.SpecificationId);
+
+            var r = await (from calendar in Db.Calendars
+                    join specs in Db.CalendarSpecifications on calendar.Id equals specs.CalendarId
+                    where in_.Contains(specs.SpecificationId) && calendar.Date.Date == date.Date &&
+                    calendar.Active
+                    select new Calendar
+                    {
+                        ClientId = calendar.ClientId,
+                        EquipamentId = calendar.EquipamentId,
+                        StartTime = calendar.StartTime,
+                        EndTime = calendar.EndTime,
+                        
+                        
+                    }).ToListAsync();
+
+            return r;
+
+        }
+
         public async Task<IEnumerable<Calendar>> ValidateEquipament(DateTime date, Guid clientId, Guid equipamentId)
         {
             
-            var sql = $"select * from Calendars where date >= '{date.ToString("yyyy-MM-dd")}' and equipamentId = '{equipamentId}' and ClientId != '{clientId}' and status not in ('3','4')";
+            var sql = $"select * from Calendars where date = '{date.ToString("yyyy-MM-dd")}' and equipamentId = '{equipamentId}' and ClientId != '{clientId}' and status not in ('3','4')";
             return await Db.Calendars.FromSqlRaw(sql).ToListAsync();
 
         }
@@ -86,7 +122,7 @@ namespace Solucao.Application.Data.Repositories
 
             var sql = $"select distinct c.* from Calendars as c left join CalendarSpecifications as cs on " +
                                 "c.Id = cs.CalendarId " +
-                                $"where CONVERT(varchar, c.date, 112) >= '{date.ToString("yyyyMMdd")}' and ";
+                                $"where CONVERT(varchar, c.date, 112) = '{date.ToString("yyyyMMdd")}' and ";
             if (list.Any())
                 sql += $"cs.SpecificationId in ({_in}) and ";
 
@@ -98,13 +134,15 @@ namespace Solucao.Application.Data.Repositories
 
         public async Task<int> SpecCounterBySpec(Guid specificationId, DateTime date, DateTime startTime)
         {
-            var sql = $"select count(cs.Id) as amount from Calendars as c left join CalendarSpecifications as cs on " +
-                                "c.Id = cs.CalendarId " +
-                                $"where CONVERT(varchar, c.date, 112) >= '{date.ToString("yyyyMMdd")}' and " +
-                                $"cs.SpecificationId = '{specificationId}' and " +
-                                $"'{startTime.ToString("HH:mm:ss")}' >= CONVERT(varchar, c.StartTime, 108) and " +
-                                $"'{startTime.ToString("HH:mm:ss")}' <= CONVERT(varchar, c.EndTime, 108) ";
-            return await Db.Calendars.FromSqlRaw(sql).CountAsync();
+            
+            return await (from calendar in Db.Calendars
+                           join specs in Db.CalendarSpecifications on calendar.Id equals specs.CalendarId
+                           where specs.SpecificationId == specificationId
+                           && calendar.Date.Date == date.Date
+                           && startTime.TimeOfDay >= calendar.StartTime.Value.TimeOfDay
+                           && startTime.TimeOfDay <= calendar.EndTime.Value.TimeOfDay
+                           && specs.Active
+                           select specs).CountAsync();
         }
 
 
@@ -112,8 +150,9 @@ namespace Solucao.Application.Data.Repositories
         {
             var sql = $"select count(cs.Id) as amount from Calendars as c left join CalendarSpecifications as cs on " +
                                 "c.Id = cs.CalendarId " +
-                                $"where CONVERT(varchar, c.date, 112) >= '{date.ToString("yyyyMMdd")}' and " +
+                                $"where CONVERT(varchar, c.date, 112) = '{date.ToString("yyyyMMdd")}' and " +
                                 $"cs.SpecificationId = '{specificationId}'";
+
             return await Db.Calendars.FromSqlRaw(sql).CountAsync();
         }
 
