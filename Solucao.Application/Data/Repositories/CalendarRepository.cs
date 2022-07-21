@@ -16,7 +16,7 @@ namespace Solucao.Application.Data.Repositories
         public IUnitOfWork UnitOfWork => Db;
         protected readonly SolucaoContext Db;
         protected readonly DbSet<Calendar> DbSet;
-        private List<string> notIn = new List<string> { "3", "4" };
+        private List<string> notIn = new List<string> { "4" };
 
     public CalendarRepository(SolucaoContext _context)
         {
@@ -90,7 +90,7 @@ namespace Solucao.Application.Data.Repositories
         {
             var in_ = list.Select(x => x.SpecificationId);
 
-            var r = await (from calendar in Db.Calendars
+            var result = await (from calendar in Db.Calendars
                     join specs in Db.CalendarSpecifications on calendar.Id equals specs.CalendarId
                     where in_.Contains(specs.SpecificationId) && calendar.Date.Date == date.Date &&
                     calendar.Active
@@ -104,7 +104,7 @@ namespace Solucao.Application.Data.Repositories
                         
                     }).ToListAsync();
 
-            return r;
+            return result;
 
         }
 
@@ -132,8 +132,9 @@ namespace Solucao.Application.Data.Repositories
             return await Db.Calendars.FromSqlRaw(sql).ToListAsync();
         }
 
-        public async Task<int> SpecCounterBySpec(Guid specificationId, DateTime date, DateTime startTime)
+        public async Task<int> SpecCounterBySpec(Guid specificationId, DateTime date, DateTime startTime, Guid clientId)
         {
+            var _notIn = new List<string> { "3", "4" };
             
             return await (from calendar in Db.Calendars
                            join specs in Db.CalendarSpecifications on calendar.Id equals specs.CalendarId
@@ -142,6 +143,9 @@ namespace Solucao.Application.Data.Repositories
                            && startTime.TimeOfDay >= calendar.StartTime.Value.TimeOfDay
                            && startTime.TimeOfDay <= calendar.EndTime.Value.TimeOfDay
                            && specs.Active
+                           && calendar.Active
+                           && !_notIn.Contains(calendar.Status)
+                           && calendar.ClientId != clientId
                            select specs).CountAsync();
         }
 
@@ -157,56 +161,34 @@ namespace Solucao.Application.Data.Repositories
         }
 
 
-        public async Task<IEnumerable<Calendar>> Availability(DateTime startDate, DateTime endDate,  Guid? clientId, Guid? equipamentId)
+        public async Task<IEnumerable<Calendar>> Availability(DateTime startDate, DateTime endDate,  Guid? clientId, Guid? equipamentId, Guid? driverId, Guid? techniqueId)
         {
+            var sql = await Db.Calendars.Include(x => x.Equipament)
+                                  .Include(x => x.Client)
+                                  .Include(x => x.Driver)
+                                  .Include(x => x.Technique)
+                                  .Include(x => x.User)
+                                  .Include(x => x.CalendarSpecifications)
+                                  .Where(x => x.Date.Date >= startDate
+                                  && x.Date.Date <= endDate
+                                  && x.Active).ToListAsync();
 
             if (clientId.HasValue)
-            {
-                return await Db.Calendars.Include(x => x.Equipament)
-                                          .Include(x => x.Client)
-                                          .Include(x => x.Driver)
-                                          .Include(x => x.Technique)
-                                          .Include(x => x.User)
-                                          .Include(x => x.CalendarSpecifications)
-                                          .Where(x => x.Date.Date >= startDate && x.Date.Date <= endDate && 
-                                                      x.ClientId == clientId.Value && 
-                                                      x.Active).OrderBy(x => x.Date).ToListAsync();
-            }
+                sql = sql.Where(x => x.ClientId == clientId.Value).ToList();
+                
 
             if (equipamentId.HasValue)
-            {
-                return await Db.Calendars.Include(x => x.Equipament)
-                                          .Include(x => x.Client)
-                                          .Include(x => x.Driver)
-                                          .Include(x => x.Technique)
-                                          .Include(x => x.User)
-                                          .Include(x => x.CalendarSpecifications)
-                                          .Where(x => x.Date.Date >= startDate && x.Date.Date <= endDate && 
-                                                      x.EquipamentId == equipamentId.Value && 
-                                                      x.Active).OrderBy(x => x.Date).ToListAsync();
-            }
+                sql = sql.Where(x => x.EquipamentId == equipamentId.Value).ToList();
 
-            if (equipamentId.HasValue && clientId.HasValue)
-            {
-                return await Db.Calendars.Include(x => x.Equipament)
-                                          .Include(x => x.Client)
-                                          .Include(x => x.Driver)
-                                          .Include(x => x.Technique)
-                                          .Include(x => x.User)
-                                          .Include(x => x.CalendarSpecifications)
-                                          .Where(x => x.Date.Date >= startDate && x.Date.Date <= endDate && 
-                                                      x.EquipamentId == equipamentId.Value && 
-                                                      x.ClientId == clientId.Value &&
-                                                      x.Active).OrderBy(x => x.Date).ToListAsync();
-            }
-            return await Db.Calendars.Include(x => x.Equipament)
-                                          .Include(x => x.Client)
-                                          .Include(x => x.Driver)
-                                          .Include(x => x.Technique)
-                                          .Include(x => x.User)
-                                          .Include(x => x.CalendarSpecifications)
-                                          .Where(x => x.Date.Date >= startDate && x.Date.Date <= endDate && 
-                                                      x.Active).OrderBy(x => x.Date).ToListAsync();
+            if (driverId.HasValue)
+                sql = sql.Where(x => x.DriverId == driverId.Value).ToList();
+
+            if (techniqueId.HasValue)
+                sql = sql.Where(x => x.TechniqueId == techniqueId.Value).ToList();
+
+            return sql.OrderBy(x => x.StartTime);
+
+            
 
         }
 

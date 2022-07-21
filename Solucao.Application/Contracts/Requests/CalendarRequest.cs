@@ -11,6 +11,8 @@ namespace Solucao.Application.Contracts.Requests
         public Guid? EquipamentId { get; set; }
         public Guid? CalendarId { get; set; }
         public Guid? PersonId { get; set; }
+        public Guid? TechniqueId { get; set; }
+        public Guid? DriverId { get; set; }
         public bool IsDriver { get; set; }
         public bool IsTravelOn { get; set; }
         public string Status { get; set; }

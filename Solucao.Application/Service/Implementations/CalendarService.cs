@@ -143,15 +143,10 @@ namespace Solucao.Application.Service.Implementations
                 // Os equipamentos podem compartilhar a mesma ponteira
                 var temp = specifications.Where(x => x.Active).ToList();
 
-                var r = await calendarRepository.GetSpecificationsByDate(date, temp);
-
-                var res = await calendarRepository.GetCalendarBySpecificationsAndDate(temp, date, startTime_);
-
-               
                 foreach (var item in temp)
                 {
                     var spec = await specificationRepository.GetById(item.SpecificationId);
-                    var counter = await calendarRepository.SpecCounterBySpec(item.SpecificationId, date, startTime_);
+                    var counter = await calendarRepository.SpecCounterBySpec(item.SpecificationId, date, startTime_, clientId);
 
                     if (counter >= spec.Amount )
                         return new ValidationResult($"Para data e hora informada, ponteira já está em uso. ({spec.Name})");
@@ -167,15 +162,9 @@ namespace Solucao.Application.Service.Implementations
 
                 }
 
-                return ValidationResult.Success;
-
-                
-
                 foreach (var item in result)
                 {
-                    if (startTime_ >= item.StartTime && startTime_ <= item.EndTime)
-                        return new ValidationResult("Para data e hora informada, equipamento já está em uso.");
-
+                    
                     if (item.EndTime.HasValue)
                     {
                         var time = startTime_ - item.EndTime.Value;
@@ -200,9 +189,9 @@ namespace Solucao.Application.Service.Implementations
             }
         }
 
-        public async Task<IEnumerable<CalendarViewModel>> Availability(DateTime startDate, DateTime endDate, Guid? clientId, Guid? equipamentId)
+        public async Task<IEnumerable<CalendarViewModel>> Availability(DateTime startDate, DateTime endDate, Guid? clientId, Guid? equipamentId, Guid? driverId, Guid? techniqueId)
         {
-            return mapper.Map<IEnumerable<CalendarViewModel>>(await calendarRepository.Availability(startDate, endDate, clientId, equipamentId));
+            return mapper.Map<IEnumerable<CalendarViewModel>>(await calendarRepository.Availability(startDate, endDate, clientId, equipamentId, driverId,techniqueId));
         }
 
         public async Task<IEnumerable<EquipamentList>> GetAllByDate(DateTime date)

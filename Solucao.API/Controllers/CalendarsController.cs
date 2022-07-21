@@ -52,7 +52,7 @@ namespace Solucao.API.Controllers
         public async Task<IEnumerable<CalendarViewModel>> AvailabilityAsync([FromQuery] CalendarRequest model)
         {
             logger.LogInformation($"{nameof(CalendarsController)} -{nameof(AvailabilityAsync)} | Inicio da chamada");
-            return await calendarService.Availability(model.StartDate, model.EndDate, model.ClientId, model.EquipamentId);
+            return await calendarService.Availability(model.StartDate, model.EndDate, model.ClientId, model.EquipamentId, model.DriverId, model.TechniqueId);
         }
 
         [HttpPost("calendar")]

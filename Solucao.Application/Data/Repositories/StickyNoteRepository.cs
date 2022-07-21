@@ -40,7 +40,7 @@ namespace Solucao.Application.Data.Repositories
         public async Task<IEnumerable<StickyNote>> GetAll(DateTime date)
         {
 
-            return await Db.StickyNotes.Include(x => x.User).Where(x => x.Active && x.Date.Date == date).OrderBy(x => x.CreatedAt).ToListAsync();
+            return await Db.StickyNotes.Include(x => x.User).Where(x => x.Active && x.Date.Date == date).OrderByDescending(x => x.CreatedAt).ToListAsync();
         }
 
         public async Task<ValidationResult> Update(StickyNote stickyNote)
