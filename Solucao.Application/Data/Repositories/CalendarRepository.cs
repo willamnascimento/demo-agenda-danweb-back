@@ -165,6 +165,8 @@ namespace Solucao.Application.Data.Repositories
         {
             var sql = await Db.Calendars.Include(x => x.Equipament)
                                   .Include(x => x.Client)
+                                  .Include(x => x.Client.City)
+                                  .Include(x => x.Client.State)
                                   .Include(x => x.Driver)
                                   .Include(x => x.Technique)
                                   .Include(x => x.User)

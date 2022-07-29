@@ -162,7 +162,7 @@ namespace Solucao.Application.Service.Implementations
 
                 }
 
-                foreach (var item in result)
+                foreach (var item in result.Where(x => x.EquipamentId == equipamentId))
                 {
                     
                     if (item.EndTime.HasValue)

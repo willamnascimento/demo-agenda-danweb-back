@@ -123,7 +123,7 @@ namespace Solucao.API.Controllers
             if (user == null)
             {
                 logger.LogWarning($"{nameof(Authenticate)} | Erro Autenticacao - {model.Email}");
-                return NotFound(new ApplicationError { Code = "404", Message = "Senha ou usuário inválido." });
+                return BadRequest(new ApplicationError { Code = "400", Message = "Senha ou usuário inválido." });
 
             }
 

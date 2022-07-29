@@ -72,9 +72,9 @@ namespace Solucao.API.Controllers
                 if (!result.ErrorMessage.Contains("minutos"))
                     return NotFound(result);
                 else
-                    model.Note = result.ErrorMessage;
+                    model.Note += result.ErrorMessage;
             }
-
+            
             var user = await userService.GetByName(User.Identity.Name);
 
             result = await calendarService.Add(model, user.Id);
@@ -100,7 +100,7 @@ namespace Solucao.API.Controllers
                 if (!result.ErrorMessage.Contains("minutos"))
                     return NotFound(result);
                 else
-                    model.Note = result.ErrorMessage;
+                    model.Note += result.ErrorMessage;
             }
 
             var user = await userService.GetByName(User.Identity.Name);

@@ -23,7 +23,7 @@ namespace Solucao.Application.Service.Implementations
                 {
                     new Claim(ClaimTypes.Name, user.Name.ToString())
                 }),
-                Expires = DateTime.UtcNow.AddHours(4),
+                Expires = DateTime.UtcNow.AddHours(6),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
