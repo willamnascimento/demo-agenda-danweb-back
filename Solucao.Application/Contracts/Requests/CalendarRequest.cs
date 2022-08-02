@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Solucao.Application.Contracts.Requests
 {
     public class CalendarRequest
     {
+        
+
         public DateTime Date { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
@@ -13,6 +16,7 @@ namespace Solucao.Application.Contracts.Requests
         public Guid? PersonId { get; set; }
         public Guid? TechniqueId { get; set; }
         public Guid? DriverId { get; set; }
+        public string DriverList { get; set; }
         public bool IsDriver { get; set; }
         public bool IsTravelOn { get; set; }
         public string Status { get; set; }

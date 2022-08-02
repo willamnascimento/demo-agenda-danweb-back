@@ -189,9 +189,9 @@ namespace Solucao.Application.Service.Implementations
             }
         }
 
-        public async Task<IEnumerable<CalendarViewModel>> Availability(DateTime startDate, DateTime endDate, Guid? clientId, Guid? equipamentId, Guid? driverId, Guid? techniqueId)
+        public async Task<IEnumerable<CalendarViewModel>> Availability(DateTime startDate, DateTime endDate, Guid? clientId, Guid? equipamentId, List<Guid> driverId, Guid? techniqueId, string status)
         {
-            return mapper.Map<IEnumerable<CalendarViewModel>>(await calendarRepository.Availability(startDate, endDate, clientId, equipamentId, driverId,techniqueId));
+            return mapper.Map<IEnumerable<CalendarViewModel>>(await calendarRepository.Availability(startDate, endDate, clientId, equipamentId, driverId,techniqueId, status));
         }
 
         public async Task<IEnumerable<EquipamentList>> GetAllByDate(DateTime date)

@@ -52,7 +52,11 @@ namespace Solucao.API.Controllers
         public async Task<IEnumerable<CalendarViewModel>> AvailabilityAsync([FromQuery] CalendarRequest model)
         {
             logger.LogInformation($"{nameof(CalendarsController)} -{nameof(AvailabilityAsync)} | Inicio da chamada");
-            return await calendarService.Availability(model.StartDate, model.EndDate, model.ClientId, model.EquipamentId, model.DriverId, model.TechniqueId);
+            List<Guid> list = new List<Guid>();
+            if (!string.IsNullOrEmpty(model.DriverList))
+             list = model.DriverList.Split(',').Select(Guid.Parse).ToList();
+
+            return await calendarService.Availability(model.StartDate, model.EndDate, model.ClientId, model.EquipamentId, list, model.TechniqueId, model.Status);
         }
 
         [HttpPost("calendar")]

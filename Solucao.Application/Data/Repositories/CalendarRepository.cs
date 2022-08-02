@@ -161,9 +161,11 @@ namespace Solucao.Application.Data.Repositories
         }
 
 
-        public async Task<IEnumerable<Calendar>> Availability(DateTime startDate, DateTime endDate,  Guid? clientId, Guid? equipamentId, Guid? driverId, Guid? techniqueId)
+        public async Task<IEnumerable<Calendar>> Availability(DateTime startDate, DateTime endDate,  Guid? clientId, Guid? equipamentId, List<Guid> driverId, Guid? techniqueId, string status)
         {
-            var sql = await Db.Calendars.Include(x => x.Equipament)
+            try
+            {
+                var sql = await Db.Calendars.Include(x => x.Equipament)
                                   .Include(x => x.Client)
                                   .Include(x => x.Client.City)
                                   .Include(x => x.Client.State)
@@ -175,22 +177,28 @@ namespace Solucao.Application.Data.Repositories
                                   && x.Date.Date <= endDate
                                   && x.Active).ToListAsync();
 
-            if (clientId.HasValue)
-                sql = sql.Where(x => x.ClientId == clientId.Value).ToList();
-                
+                if (clientId.HasValue)
+                    sql = sql.Where(x => x.ClientId == clientId.Value).ToList();
 
-            if (equipamentId.HasValue)
-                sql = sql.Where(x => x.EquipamentId == equipamentId.Value).ToList();
 
-            if (driverId.HasValue)
-                sql = sql.Where(x => x.DriverId == driverId.Value).ToList();
+                if (equipamentId.HasValue)
+                    sql = sql.Where(x => x.EquipamentId == equipamentId.Value).ToList();
 
-            if (techniqueId.HasValue)
-                sql = sql.Where(x => x.TechniqueId == techniqueId.Value).ToList();
+                if (driverId.Any())
+                    sql = sql.Where(x => x.DriverId != null).Where(x => driverId.Contains(x.DriverId.Value)).ToList();
 
-            return sql.OrderBy(x => x.StartTime);
+                if (techniqueId.HasValue)
+                    sql = sql.Where(x => x.TechniqueId == techniqueId.Value).ToList();
 
-            
+                if (!string.IsNullOrEmpty(status))
+                    sql = sql.Where(x => x.Status == status).ToList();
+
+                return sql.OrderBy(x => x.StartTime);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
 
         }
 
