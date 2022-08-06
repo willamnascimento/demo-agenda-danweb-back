@@ -61,5 +61,24 @@ namespace Solucao.Application.Service.Implementations
                 throw;
             }
         }
+
+        public async Task<ValidationResult> Remove(Guid stickyNotesId)
+        {
+            try
+            {
+                var stickyNote = await stickyNoteRepository.GetById(stickyNotesId);
+                if (stickyNote == null)
+                    return new ValidationResult("Anotação não encontrada");
+
+                stickyNote.Active = false;
+                await stickyNoteRepository.Update(stickyNote);
+
+                return ValidationResult.Success;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }
