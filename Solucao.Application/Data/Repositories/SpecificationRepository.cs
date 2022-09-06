@@ -44,6 +44,23 @@ namespace Solucao.Application.Data.Repositories
             return await Db.Specifications.AnyAsync(x => x.Active && x.Single);
         }
 
+        public async Task<List<Specification>> GetSpecificationByEquipament(List<Guid> equipamentIds)
+        {
+
+            return await (from specification in Db.EquipamentSpecifications
+                          where
+                          specification.Active && equipamentIds.Contains(specification.EquipamentId)
+                          select specification.Specification).Distinct().OrderBy(x => x.Name).ToListAsync();
+        }
+
+        public async Task<List<Equipament>> GetSpecificationByEquipament2(List<Guid> equipamentIds, List<Guid> specificationIds)
+        {
+            return await Db.EquipamentSpecifications.Where(x => 
+                          x.Active && equipamentIds.Contains(x.EquipamentId) &&
+                          specificationIds.Contains(x.SpecificationId)).Select(x => x.Equipament).ToListAsync();
+
+        }
+
         public async Task<ValidationResult> Add(Specification specification)
         {
             try

@@ -18,7 +18,7 @@ namespace Solucao.API.Controllers
 {
     [Route("api/v1")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class SpecificationsController : ControllerBase
     {
         private readonly ISpecificationService specificationService;
@@ -36,6 +36,19 @@ namespace Solucao.API.Controllers
         public async Task<IEnumerable<SpecificationViewModel>> GetAllAsync()
         {
             return await specificationService.GetAll();
+        }
+
+        [HttpGet("specifications/get-specification-by-equipament")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(Person))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(ApplicationError))]
+        [SwaggerResponse((int)HttpStatusCode.Conflict, Type = typeof(ApplicationError))]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, Type = typeof(ApplicationError))]
+        public async Task<IEnumerable<SpecificationViewModel>> GetSpecficationByEquipamentAsync([FromQuery] SpecificationRequest model)
+        {
+            List<Guid> list = new List<Guid>();
+            if (!string.IsNullOrEmpty(model.EquipamentList))
+                list = model.EquipamentList.Split(',').Select(Guid.Parse).ToList();
+            return await specificationService.GetSpecificationByEquipament(list);
         }
 
         [HttpPost("specifications")]

@@ -24,6 +24,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Solucao.CrossCutting\Solucao.CrossCutting.csproj" />
+    <ProjectReference Include="..\Solucao.Application\Solucao.Application.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>

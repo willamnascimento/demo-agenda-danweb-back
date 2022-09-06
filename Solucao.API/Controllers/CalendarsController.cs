@@ -19,7 +19,7 @@ namespace Solucao.API.Controllers
 {
     [Route("api/v1")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class CalendarsController : ControllerBase
     {
         private readonly ICalendarService calendarService;
@@ -44,19 +44,38 @@ namespace Solucao.API.Controllers
             return await calendarService.GetAllByDate(model.Date);
         }
 
+        [HttpGet("calendar/schedules")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(Calendar))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(ApplicationError))]
+        [SwaggerResponse((int)HttpStatusCode.Conflict, Type = typeof(ApplicationError))]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, Type = typeof(ApplicationError))]
+        public async Task<IEnumerable<CalendarViewModel>> SchedulesAsync([FromQuery] CalendarRequest model)
+        {
+            logger.LogInformation($"{nameof(CalendarsController)} -{nameof(SchedulesAsync)} | Inicio da chamada");
+            var list = new List<Guid>();
+            if (!string.IsNullOrEmpty(model.DriverList))
+             list = model.DriverList.Split(',').Select(Guid.Parse).ToList();
+
+            return await calendarService.Schedules(model.StartDate, model.EndDate, model.ClientId, model.EquipamentId, list, model.TechniqueId, model.Status);
+        }
+
         [HttpGet("calendar/availability")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(Calendar))]
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(ApplicationError))]
         [SwaggerResponse((int)HttpStatusCode.Conflict, Type = typeof(ApplicationError))]
         [SwaggerResponse((int)HttpStatusCode.NotFound, Type = typeof(ApplicationError))]
-        public async Task<IEnumerable<CalendarViewModel>> AvailabilityAsync([FromQuery] CalendarRequest model)
+        public async Task<string> AvailabilityAsync([FromQuery] CalendarRequest model)
         {
             logger.LogInformation($"{nameof(CalendarsController)} -{nameof(AvailabilityAsync)} | Inicio da chamada");
-            List<Guid> list = new List<Guid>();
-            if (!string.IsNullOrEmpty(model.DriverList))
-             list = model.DriverList.Split(',').Select(Guid.Parse).ToList();
 
-            return await calendarService.Availability(model.StartDate, model.EndDate, model.ClientId, model.EquipamentId, list, model.TechniqueId, model.Status);
+            var equipamentIds = new List<Guid>();
+            var specificationIds = new List<Guid>();
+            if (!string.IsNullOrEmpty(model.EquipamentList))
+                equipamentIds = model.EquipamentList.Split(',').Select(Guid.Parse).ToList();
+
+            
+
+            return await calendarService.Availability(equipamentIds, model.Month, model.Year);
         }
 
         [HttpPost("calendar")]

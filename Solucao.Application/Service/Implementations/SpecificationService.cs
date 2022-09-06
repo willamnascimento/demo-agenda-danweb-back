@@ -58,5 +58,10 @@ namespace Solucao.Application.Service.Interfaces
 
             return new ValidationResult("Já existe uma especificação única");
         }
+
+        public async Task<IEnumerable<SpecificationViewModel>> GetSpecificationByEquipament(List<Guid> equipamentIds)
+        {
+            return mapper.Map <IEnumerable<SpecificationViewModel>>( await specificationRepository.GetSpecificationByEquipament(equipamentIds));
+        }
     }
 }

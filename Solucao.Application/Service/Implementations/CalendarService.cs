@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Solucao.Application.Contracts;
 using Solucao.Application.Data.Entities;
 using Solucao.Application.Data.Repositories;
@@ -7,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Solucao.Application.Service.Implementations
@@ -189,9 +190,39 @@ namespace Solucao.Application.Service.Implementations
             }
         }
 
-        public async Task<IEnumerable<CalendarViewModel>> Availability(DateTime startDate, DateTime endDate, Guid? clientId, Guid? equipamentId, List<Guid> driverId, Guid? techniqueId, string status)
+        public async Task<IEnumerable<CalendarViewModel>> Schedules(DateTime startDate, DateTime endDate, Guid? clientId, Guid? equipamentId, List<Guid> driverId, Guid? techniqueId, string status)
         {
-            return mapper.Map<IEnumerable<CalendarViewModel>>(await calendarRepository.Availability(startDate, endDate, clientId, equipamentId, driverId,techniqueId, status));
+            return mapper.Map<IEnumerable<CalendarViewModel>>(await calendarRepository.Schedules(startDate, endDate, clientId, equipamentId, driverId,techniqueId, status));
+        }
+
+        public async Task<string> Availability(List<Guid> equipamentIds, int month, int year)
+        {
+            var unavailables = await calendarRepository.Availability(equipamentIds, month, year);
+            var monthDays = DateTime.DaysInMonth(year, month);
+            dynamic ret = new JObject();
+            var objectList = new List<object>();
+
+            var equipament = await equipamentRepository.GetListById(equipamentIds);
+            var list = new List<object>();
+            foreach (var item in equipament)
+            {
+                var dayList = new List<object>();
+                dynamic availableEquipament = new JObject();
+
+                for (int day = 1; day <= monthDays; day++)
+                {
+                    dynamic availableDay = new JObject();
+                    availableDay.Available = !unavailables.Any(x => x.Date.Date.Day == day && x.EquipamentId == item.Id);
+                    availableDay.Day = day;
+                    dayList.Add(availableDay);
+                }
+                objectList.Add(dayList);
+                availableEquipament.Equipament = item.Name;
+                availableEquipament.DayList = JArray.FromObject(dayList);
+                list.Add(availableEquipament);
+            }
+            ret.List = JArray.FromObject(list);
+            return JsonConvert.SerializeObject(ret);
         }
 
         public async Task<IEnumerable<EquipamentList>> GetAllByDate(DateTime date)
@@ -309,6 +340,31 @@ namespace Solucao.Application.Service.Implementations
             }
 
             return inUse;
+        }
+
+        private async Task<IEnumerable<Equipament>> MountSpecificationByEquipament(List<Guid> equipamentIds, List<Guid> specificationIds)
+        {
+            
+                if (specificationIds.Any())
+                {
+                    var ret = new List<Equipament>();
+                    var specification = await equipamentRepository.GetListById(equipamentIds);
+
+                    foreach (var item in specification)
+                    {
+                        var specs = item.EquipamentSpecifications.Where(x => x.Active && specificationIds.Contains(x.SpecificationId)).ToList();
+                        var equip = new Equipament();
+                        equip = item;
+                        equip.EquipamentSpecifications = specs;
+                        ret.Add(equip);
+                    }
+
+                    return ret;
+                }
+            
+            
+
+            return null;
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Solucao.Application.Data.Repositories
         protected readonly DbSet<Calendar> DbSet;
         private List<string> notIn = new List<string> { "4" };
 
-    public CalendarRepository(SolucaoContext _context)
+        public CalendarRepository(SolucaoContext _context)
         {
             Db = _context;
             DbSet = Db.Set<Calendar>();
@@ -161,7 +161,7 @@ namespace Solucao.Application.Data.Repositories
         }
 
 
-        public async Task<IEnumerable<Calendar>> Availability(DateTime startDate, DateTime endDate,  Guid? clientId, Guid? equipamentId, List<Guid> driverId, Guid? techniqueId, string status)
+        public async Task<IEnumerable<Calendar>> Schedules(DateTime startDate, DateTime endDate,  Guid? clientId, Guid? equipamentId, List<Guid> driverId, Guid? techniqueId, string status)
         {
             try
             {
@@ -200,6 +200,27 @@ namespace Solucao.Application.Data.Repositories
                 throw;
             }
 
+        }
+
+        public async Task<IEnumerable<Calendar>> Availability(List<Guid> equipamentIds, int month, int year)
+        {
+            var _notIn = new List<string> { "3", "4" };
+
+            try
+            {
+                var sql = await Db.Calendars
+                                  .Include(x => x.CalendarSpecifications)
+                                  .Where(x => x.Date.Month == month && x.Date.Year == year
+                                  && !_notIn.Contains(x.Status)
+                                  && x.Active && equipamentIds.Contains(x.EquipamentId)).ToListAsync();
+
+                
+                return sql;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         private string In(List<Guid> list)
