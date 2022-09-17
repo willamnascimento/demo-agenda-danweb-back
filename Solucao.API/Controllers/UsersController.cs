@@ -73,7 +73,7 @@ namespace Solucao.API.Controllers
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(ApplicationError))]
         [SwaggerResponse((int)HttpStatusCode.Conflict, Type = typeof(ApplicationError))]
         [SwaggerResponse((int)HttpStatusCode.NotFound, Type = typeof(ApplicationError))]
-        public async Task<IActionResult> PutAsync(string id, [FromBody] User model)
+        public async Task<IActionResult> PutAsync(Guid id, [FromBody] User model)
         {
             logger.LogInformation($"{nameof(PutAsync)} | Inicio da chamada - {model.Email}");
             var result = await userService.Update(model, id);

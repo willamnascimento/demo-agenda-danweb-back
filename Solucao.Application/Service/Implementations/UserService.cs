@@ -30,25 +30,27 @@ namespace Solucao.Application.Service.Implementations
             return mapper.Map<IEnumerable<UserViewModel>>(await userRepository.GetAll());
         }
 
-        public Task<UserViewModel> GetById(string Id)
+        public Task<UserViewModel> GetById(Guid Id)
         {
             return mapper.Map<Task<UserViewModel>>(userRepository.GetById(Id));
         }
 
         public Task<ValidationResult> Add(User user)
         {
-            user.Id = Guid.NewGuid();
             user.CreatedAt = DateTime.Now;
             user.Password = mD5Service.ReturnMD5(user.Password);
 
             return userRepository.Add(user);
         }
 
-        public Task<ValidationResult> Update(User user, string id)
+        public async Task<ValidationResult> Update(User user, Guid id)
         {
-                user.UpdatedAt = DateTime.Now;
+            var user_ = await userRepository.GetById(id);
 
-                return userRepository.Update(user);
+            user.UpdatedAt = DateTime.Now;
+            user.Password = user_.Password;
+
+            return await userRepository.Update(user);
         }
 
         public async Task<UserViewModel> Authenticate(string email, string password)

@@ -33,7 +33,7 @@ namespace Solucao.Application.Data.Repositories
             return await Db.Users.ToListAsync();
         }
 
-        public async Task<User> GetById(string Id)
+        public async Task<User> GetById(Guid Id)
         {
             return await Db.Users.FindAsync(Id);
         }
