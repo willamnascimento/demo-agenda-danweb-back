@@ -236,7 +236,7 @@ namespace Solucao.Application.Service.Implementations
                 var item_ = new EquipamentList();
                 item_.Equipament = item;
                 item_.Equipament.EquipamentSpecifications = null;
-                var dayCalendars = calendars.Where(x => x.EquipamentId == item.Id);
+                var dayCalendars = calendars.Where(x => x.EquipamentId == item.Id).OrderBy(x => x.StartTime);
                 if (dayCalendars.Any())
                 {
                     item_.Calendars = dayCalendars;
