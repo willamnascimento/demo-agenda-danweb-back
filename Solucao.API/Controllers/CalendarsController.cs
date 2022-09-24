@@ -73,8 +73,6 @@ namespace Solucao.API.Controllers
             if (!string.IsNullOrEmpty(model.EquipamentList))
                 equipamentIds = model.EquipamentList.Split(',').Select(Guid.Parse).ToList();
 
-            
-
             return await calendarService.Availability(equipamentIds, model.Month, model.Year);
         }
 

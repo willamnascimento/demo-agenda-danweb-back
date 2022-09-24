@@ -98,12 +98,21 @@ namespace Solucao.API.Controllers
         {
             logger.LogInformation($"{nameof(ChangeUserPassworAsync)} | Inicio da chamada - {model.Email}");
             // Recupera o usuário
+
+            var userAuthenticated = await userService.GetByName(User.Identity.Name);
+
             var user = await userService.GetByEmail(model.Email);
+
+            if (userAuthenticated.Name != user.Name)
+            {
+                logger.LogWarning($"{nameof(ChangeUserPassworAsync)} | Erro Autenticacao - {model.Email}");
+                return BadRequest(new ApplicationError { Code = "404", Message = "Você não pode alterar a senha de outro usuário." });
+            }
 
             if (user == null)
             {
                 logger.LogWarning($"{nameof(ChangeUserPassworAsync)} | Erro Autenticacao - {model.Email}");
-                return NotFound(new ApplicationError { Code = "404", Message = "Usuário e senha não conferem." });
+                return BadRequest(new ApplicationError { Code = "404", Message = "Usuário não encontrado." });
 
             }
 
