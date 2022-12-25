@@ -4,7 +4,7 @@ resources:
 - solucao-api.dep.yaml
 - solucao-api.svc.yaml
 
-namespace: default
+namespace: solucao-laser
 
 images:
 - name: solucao-api
