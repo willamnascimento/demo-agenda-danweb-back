@@ -9,4 +9,4 @@ namespace: default
 images:
 - name: solucao-api
   newName: williambr2022/solucao-api
-  newTag: 92cbdefabfa3363c30164a665b82ccf457cab86c
+  newTag: 08bee9847797e5ad6760635a8a55a785125f564e
