@@ -1,5 +1,4 @@
-name: .NET
-
+name: CD production
 on:
   push:
     branches: [ "main" ]
