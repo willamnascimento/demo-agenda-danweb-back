@@ -37,9 +37,6 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-        with:
-          persist-credentials: false
-          fetch-depth: 0
       
       - name: kustomize
         uses: imranismail/setup-kustomize@v1
@@ -58,3 +55,6 @@ jobs:
           git commit -am "change image tag"
       - name: push
         uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
