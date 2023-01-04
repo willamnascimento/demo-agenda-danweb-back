@@ -10,3 +10,4 @@ images:
 - name: solucao-api
   newName: williambr2022/solucao-api
   newTag: latest
+  

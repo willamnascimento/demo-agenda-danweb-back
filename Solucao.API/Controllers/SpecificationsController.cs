@@ -18,7 +18,7 @@ namespace Solucao.API.Controllers
 {
     [Route("api/v1")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class SpecificationsController : ControllerBase
     {
         private readonly ISpecificationService specificationService;
