@@ -4,10 +4,9 @@ resources:
 - solucao-api.dep.yaml
 - solucao-api.svc.yaml
 
-namespace: default
+namespace: solucao-laser
 
 images:
 - name: solucao-api
   newName: williambr2022/solucao-api
-  newTag: latest
-  
+  newTag: 26e758d3d4aa29c6668a87a6e7645fbc8c7818ff

@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: solucao-api
-          image: williambr2022/solucao-api:1.2
+          image: solucao-api
           ports:
             - containerPort: 80
           imagePullPolicy: Always
