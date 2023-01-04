@@ -9,5 +9,6 @@ namespace Solucao.Application.Contracts.Requests
     public class SpecificationRequest
     {
         public bool Ativo { get; set; }
+        public string EquipamentList { get; set; }
     }
 }

@@ -14,5 +14,6 @@ namespace Solucao.Application.Service.Interfaces
         Task<ValidationResult> Add(StickyNoteViewModel stickyNote);
         Task<ValidationResult> Update(StickyNoteViewModel stickyNote);
         Task<ValidationResult> UpdateResolved(Guid stickyNotesId);
+        Task<ValidationResult> Remove(Guid stickyNotesId);
     }
 }

@@ -16,9 +16,9 @@ namespace Solucao.Application.Data.Repositories
         public IUnitOfWork UnitOfWork => Db;
         protected readonly SolucaoContext Db;
         protected readonly DbSet<Calendar> DbSet;
-        private List<string> notIn = new List<string> { "3", "4" };
+        private List<string> notIn = new List<string> { "4" };
 
-    public CalendarRepository(SolucaoContext _context)
+        public CalendarRepository(SolucaoContext _context)
         {
             Db = _context;
             DbSet = Db.Set<Calendar>();
@@ -90,7 +90,7 @@ namespace Solucao.Application.Data.Repositories
         {
             var in_ = list.Select(x => x.SpecificationId);
 
-            var r = await (from calendar in Db.Calendars
+            var result = await (from calendar in Db.Calendars
                     join specs in Db.CalendarSpecifications on calendar.Id equals specs.CalendarId
                     where in_.Contains(specs.SpecificationId) && calendar.Date.Date == date.Date &&
                     calendar.Active
@@ -104,7 +104,7 @@ namespace Solucao.Application.Data.Repositories
                         
                     }).ToListAsync();
 
-            return r;
+            return result;
 
         }
 
@@ -132,8 +132,9 @@ namespace Solucao.Application.Data.Repositories
             return await Db.Calendars.FromSqlRaw(sql).ToListAsync();
         }
 
-        public async Task<int> SpecCounterBySpec(Guid specificationId, DateTime date, DateTime startTime)
+        public async Task<int> SpecCounterBySpec(Guid specificationId, DateTime date, DateTime startTime, Guid clientId)
         {
+            var _notIn = new List<string> { "3", "4" };
             
             return await (from calendar in Db.Calendars
                            join specs in Db.CalendarSpecifications on calendar.Id equals specs.CalendarId
@@ -142,6 +143,9 @@ namespace Solucao.Application.Data.Repositories
                            && startTime.TimeOfDay >= calendar.StartTime.Value.TimeOfDay
                            && startTime.TimeOfDay <= calendar.EndTime.Value.TimeOfDay
                            && specs.Active
+                           && calendar.Active
+                           && !_notIn.Contains(calendar.Status)
+                           && calendar.ClientId != clientId
                            select specs).CountAsync();
         }
 
@@ -157,57 +161,66 @@ namespace Solucao.Application.Data.Repositories
         }
 
 
-        public async Task<IEnumerable<Calendar>> Availability(DateTime startDate, DateTime endDate,  Guid? clientId, Guid? equipamentId)
+        public async Task<IEnumerable<Calendar>> Schedules(DateTime startDate, DateTime endDate,  Guid? clientId, Guid? equipamentId, List<Guid> driverId, Guid? techniqueId, string status)
         {
-
-            if (clientId.HasValue)
+            try
             {
-                return await Db.Calendars.Include(x => x.Equipament)
-                                          .Include(x => x.Client)
-                                          .Include(x => x.Driver)
-                                          .Include(x => x.Technique)
-                                          .Include(x => x.User)
-                                          .Include(x => x.CalendarSpecifications)
-                                          .Where(x => x.Date.Date >= startDate && x.Date.Date <= endDate && 
-                                                      x.ClientId == clientId.Value && 
-                                                      x.Active).OrderBy(x => x.Date).ToListAsync();
+                var sql = await Db.Calendars.Include(x => x.Equipament)
+                                  .Include(x => x.Client)
+                                  .Include(x => x.Client.City)
+                                  .Include(x => x.Client.State)
+                                  .Include(x => x.Driver)
+                                  .Include(x => x.Technique)
+                                  .Include(x => x.User)
+                                  .Include(x => x.CalendarSpecifications)
+                                  .Where(x => x.Date.Date >= startDate
+                                  && x.Date.Date <= endDate
+                                  && x.Active).ToListAsync();
+
+                if (clientId.HasValue)
+                    sql = sql.Where(x => x.ClientId == clientId.Value).ToList();
+
+
+                if (equipamentId.HasValue)
+                    sql = sql.Where(x => x.EquipamentId == equipamentId.Value).ToList();
+
+                if (driverId.Any())
+                    sql = sql.Where(x => x.DriverId != null).Where(x => driverId.Contains(x.DriverId.Value)).ToList();
+
+                if (techniqueId.HasValue)
+                    sql = sql.Where(x => x.TechniqueId == techniqueId.Value).ToList();
+
+                if (!string.IsNullOrEmpty(status))
+                    sql = sql.Where(x => x.Status == status).ToList();
+
+                return sql.OrderBy(x => x.StartTime);
+            }
+            catch (Exception ex)
+            {
+                throw;
             }
 
-            if (equipamentId.HasValue)
-            {
-                return await Db.Calendars.Include(x => x.Equipament)
-                                          .Include(x => x.Client)
-                                          .Include(x => x.Driver)
-                                          .Include(x => x.Technique)
-                                          .Include(x => x.User)
-                                          .Include(x => x.CalendarSpecifications)
-                                          .Where(x => x.Date.Date >= startDate && x.Date.Date <= endDate && 
-                                                      x.EquipamentId == equipamentId.Value && 
-                                                      x.Active).OrderBy(x => x.Date).ToListAsync();
-            }
+        }
 
-            if (equipamentId.HasValue && clientId.HasValue)
-            {
-                return await Db.Calendars.Include(x => x.Equipament)
-                                          .Include(x => x.Client)
-                                          .Include(x => x.Driver)
-                                          .Include(x => x.Technique)
-                                          .Include(x => x.User)
-                                          .Include(x => x.CalendarSpecifications)
-                                          .Where(x => x.Date.Date >= startDate && x.Date.Date <= endDate && 
-                                                      x.EquipamentId == equipamentId.Value && 
-                                                      x.ClientId == clientId.Value &&
-                                                      x.Active).OrderBy(x => x.Date).ToListAsync();
-            }
-            return await Db.Calendars.Include(x => x.Equipament)
-                                          .Include(x => x.Client)
-                                          .Include(x => x.Driver)
-                                          .Include(x => x.Technique)
-                                          .Include(x => x.User)
-                                          .Include(x => x.CalendarSpecifications)
-                                          .Where(x => x.Date.Date >= startDate && x.Date.Date <= endDate && 
-                                                      x.Active).OrderBy(x => x.Date).ToListAsync();
+        public async Task<IEnumerable<Calendar>> Availability(List<Guid> equipamentIds, int month, int year)
+        {
+            var _notIn = new List<string> { "3", "4" };
 
+            try
+            {
+                var sql = await Db.Calendars
+                                  .Include(x => x.CalendarSpecifications)
+                                  .Where(x => x.Date.Month == month && x.Date.Year == year
+                                  && !_notIn.Contains(x.Status)
+                                  && x.Active && equipamentIds.Contains(x.EquipamentId)).ToListAsync();
+
+                
+                return sql;
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
         private string In(List<Guid> list)

@@ -86,5 +86,19 @@ namespace Solucao.API.Controllers
                 return NotFound(result);
             return Ok(result);
         }
+
+        [HttpPut("sticky-notes/remove/{id}")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(ValidationResult))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(ApplicationError))]
+        [SwaggerResponse((int)HttpStatusCode.Conflict, Type = typeof(ApplicationError))]
+        [SwaggerResponse((int)HttpStatusCode.NotFound, Type = typeof(ApplicationError))]
+        public async Task<IActionResult> RemoveAsync(Guid id)
+        {
+            var result = await stickyNoteService.Remove(id);
+
+            if (result != null)
+                return NotFound(result);
+            return Ok(result);
+        }
     }
 }

@@ -14,13 +14,13 @@ namespace Solucao.Application.Service.Interfaces
     {
         Task<IEnumerable<UserViewModel>> GetAll();
 
-        Task<UserViewModel> GetById(string Id);
+        Task<UserViewModel> GetById(Guid Id);
 
         Task<UserViewModel> GetByName(string Name);
 
         Task<ValidationResult> Add(User user);
 
-        Task<ValidationResult> Update(User user, string id);
+        Task<ValidationResult> Update(User user, Guid id);
 
         Task<ValidationResult> ChangeUserPassword(UserViewModel user, string newPassword);
 
