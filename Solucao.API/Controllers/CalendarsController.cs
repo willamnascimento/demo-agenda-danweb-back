@@ -41,7 +41,6 @@ namespace Solucao.API.Controllers
         public async Task<IEnumerable<EquipamentList>> GetAllAsync([FromQuery] CalendarRequest model)
         {
             logger.LogInformation($"{nameof(CalendarsController)} -{nameof(GetAllAsync)} | Inicio da chamada");
-
             return await calendarService.GetAllByDate(model.Date);
         }
 
