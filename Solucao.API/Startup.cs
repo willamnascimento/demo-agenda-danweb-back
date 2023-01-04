@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Prometheus;
 using Solucao.API.Configurations;
 using Solucao.API.Services;
 using Solucao.Application.Data;
@@ -90,12 +91,32 @@ namespace Solucao.API
         {
             DatabaseManagementService.MigrationInitialisation(app);
 
-            if (env.IsDevelopment())
-            {
+            //if (env.IsDevelopment())
+            //{
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Solucao.API v1"));
-            }
+            //}
+
+            /*INICIO DA CONFIGURAÇÃO - PROMETHEUS*/
+            // Custom Metrics to count requests for each endpoint and the method
+            var counter = Metrics.CreateCounter("apimetric", "Counts requests to the ApiMetrics API endpoints",
+                new CounterConfiguration
+                {
+                    LabelNames = new[] { "method", "endpoint" }
+                });
+
+            app.Use((context, next) =>
+            {
+                counter.WithLabels(context.Request.Method, context.Request.Path).Inc();
+                return next();
+            });
+
+            // Use the prometheus middleware
+            app.UseMetricServer();
+            app.UseHttpMetrics();
+
+            /*FIM DA CONFIGURAÇÃO - PROMETHEUS*/
 
             loggerFactory.AddProvider(new CustomLoggerProvider(new CustomLoggerProviderConfiguration
             {

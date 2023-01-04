@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- solucao-api.dep.yaml
+- solucao-api.svc.yaml
+
+namespace: solucao-laser
+
+images:
+- name: solucao-api
+  newName: williambr2022/solucao-api
+  newTag: ad432746c6788a51ccf857786f5e84707065e1a1

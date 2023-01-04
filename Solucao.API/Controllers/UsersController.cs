@@ -73,7 +73,7 @@ namespace Solucao.API.Controllers
         [SwaggerResponse((int)HttpStatusCode.BadRequest, Type = typeof(ApplicationError))]
         [SwaggerResponse((int)HttpStatusCode.Conflict, Type = typeof(ApplicationError))]
         [SwaggerResponse((int)HttpStatusCode.NotFound, Type = typeof(ApplicationError))]
-        public async Task<IActionResult> PutAsync(string id, [FromBody] User model)
+        public async Task<IActionResult> PutAsync(Guid id, [FromBody] User model)
         {
             logger.LogInformation($"{nameof(PutAsync)} | Inicio da chamada - {model.Email}");
             var result = await userService.Update(model, id);
@@ -98,12 +98,21 @@ namespace Solucao.API.Controllers
         {
             logger.LogInformation($"{nameof(ChangeUserPassworAsync)} | Inicio da chamada - {model.Email}");
             // Recupera o usuário
+
+            var userAuthenticated = await userService.GetByName(User.Identity.Name);
+
             var user = await userService.GetByEmail(model.Email);
+
+            if (userAuthenticated.Name != user.Name)
+            {
+                logger.LogWarning($"{nameof(ChangeUserPassworAsync)} | Erro Autenticacao - {model.Email}");
+                return BadRequest(new ApplicationError { Code = "404", Message = "Você não pode alterar a senha de outro usuário." });
+            }
 
             if (user == null)
             {
                 logger.LogWarning($"{nameof(ChangeUserPassworAsync)} | Erro Autenticacao - {model.Email}");
-                return NotFound(new ApplicationError { Code = "404", Message = "Usuário e senha não conferem." });
+                return BadRequest(new ApplicationError { Code = "404", Message = "Usuário não encontrado." });
 
             }
 
@@ -123,7 +132,7 @@ namespace Solucao.API.Controllers
             if (user == null)
             {
                 logger.LogWarning($"{nameof(Authenticate)} | Erro Autenticacao - {model.Email}");
-                return NotFound(new ApplicationError { Code = "404", Message = "Senha ou usuário inválido." });
+                return BadRequest(new ApplicationError { Code = "400", Message = "Senha ou usuário inválido." });
 
             }
 

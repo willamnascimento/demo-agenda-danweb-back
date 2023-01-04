@@ -20,8 +20,8 @@ namespace Solucao.Application.Service.Interfaces
         Task<ValidationResult> UpdateStatusOrTravelOnCalendar(Guid id, string status, string travelOn, bool isTravelOn);
         Task<ValidationResult> UpdateContractMade(Guid id);
         Task<ValidationResult> ValidateLease(DateTime date, Guid clientId, Guid equipamentId, IList<CalendarSpecifications> specifications ,string startTime, string endTime);
-        Task<IEnumerable<CalendarViewModel>> Availability(DateTime startDate, DateTime endDate, Guid? clientId, Guid? equipamentId);
-
+        Task<IEnumerable<CalendarViewModel>> Schedules(DateTime startDate, DateTime endDate, Guid? clientId, Guid? equipamentId, List<Guid> driverId, Guid? techniqueId, string status);
+        Task<string> Availability(List<Guid> equipamentIds, int month, int year);
 
     }
 }

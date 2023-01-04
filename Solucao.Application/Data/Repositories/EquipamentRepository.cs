@@ -27,6 +27,13 @@ namespace Solucao.Application.Data.Repositories
             return await Db.Equipaments.Include(x => x.EquipamentSpecifications).Where(x => x.Active == ativo).OrderBy(x => x.Order).ToListAsync();
         }
 
+        public async Task<IEnumerable<Equipament>> GetListById(List<Guid> guids)
+        {
+            return await Db.Equipaments.Include(x => x.EquipamentSpecifications)
+                                        .ThenInclude(y => y.Specification)
+                                        .Where(x => guids.Contains(x.Id)).OrderBy(x => x.Order).ToListAsync();
+        }
+
         public async Task<ValidationResult> Add(Equipament equipament)
         {
             try

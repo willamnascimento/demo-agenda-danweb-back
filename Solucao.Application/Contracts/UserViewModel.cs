@@ -1,5 +1,4 @@
-﻿using MongoDB.Bson;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 
 namespace Solucao.Application.Contracts

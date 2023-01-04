@@ -12,6 +12,8 @@ namespace Solucao.Application.Service.Interfaces
     {
         Task<IEnumerable<SpecificationViewModel>> GetAll();
 
+        Task<IEnumerable<SpecificationViewModel>> GetSpecificationByEquipament(List<Guid> equipamentIds);
+
         Task<ValidationResult> Add(SpecificationViewModel specification);
 
         Task<ValidationResult> Update(SpecificationViewModel specification);
