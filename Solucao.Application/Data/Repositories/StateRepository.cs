@@ -22,7 +22,12 @@ namespace Solucao.Application.Data.Repositories
             DbSet = Db.Set<State>();
         }
 
-        public IEnumerable<State> GetAll()
+        public StateRepository()
+        {
+
+        }
+
+        public virtual IEnumerable<State> GetAll()
         {
             return Db.States.ToList();
         }

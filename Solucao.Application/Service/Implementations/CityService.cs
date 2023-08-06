@@ -18,6 +18,7 @@ namespace Solucao.Application.Service.Implementations
         private StateRepository stateRepository;
         private CityRepository cityRepository;
         private readonly IHttpClientFactory clientFactory;
+
         public CityService(StateRepository _stateRepository, CityRepository _cityRepository, IHttpClientFactory _clientFactory)
         {
             stateRepository = _stateRepository;

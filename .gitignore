@@ -352,3 +352,5 @@ MigrationBackup/
 .ionide/
 .DS_Store
 **/.DS_Store
+Solucao.Test/coverage.json
+Solucao.Test/lcov.info
