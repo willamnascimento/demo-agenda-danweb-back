@@ -3,12 +3,9 @@ using Newtonsoft.Json;
 using Solucao.Application.Data.Entities;
 using Solucao.Application.Data.Repositories;
 using Solucao.Application.Service.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Solucao.Application.Service.Implementations

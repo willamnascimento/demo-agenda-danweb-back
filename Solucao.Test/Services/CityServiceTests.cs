@@ -17,20 +17,18 @@ namespace Solucao.Tests
         private Mock<CityRepository> cityRepositoryMock;
         private Mock<IHttpClientFactory> httpClientFactoryMock;
         private Mock<HttpMessageHandler> handlerMock;
+        private Mock<IHttpClientFactory> mockHttpClientFactory;
+        private Mock<HttpClient> httpClientMock;
 
-        [Fact]
-        public async Task AddIBGECitiesList_Success()
+        public CityServiceTests()
         {
-            // Arrange
-            var contextMock = new Mock<SolucaoContext>();
-            var stateRepositoryMock = new Mock<StateRepository>();
-            var cityRepositoryMock = new Mock<CityRepository>();
-            var httpClientFactoryMock = new Mock<IHttpClientFactory>();
-
-            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
+            contextMock = new Mock<SolucaoContext>();
+            stateRepositoryMock = new Mock<StateRepository>();
+            cityRepositoryMock = new Mock<CityRepository>();
+            httpClientFactoryMock = new Mock<IHttpClientFactory>();
 
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
-
             dynamic json = new[]
             {
                 new { id = 1, nome = "City1" },
@@ -50,10 +48,9 @@ namespace Solucao.Tests
                 .ReturnsAsync(httpResponseMessage)
                 .Verifiable();
 
-            
-            var httpClientMock = new Mock<HttpClient>(handlerMock.Object);
+            httpClientMock = new Mock<HttpClient>(handlerMock.Object);
 
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
+            mockHttpClientFactory = new Mock<IHttpClientFactory>();
 
             mockHttpClientFactory.Setup(_ => _.CreateClient(string.Empty)).Returns(httpClientMock.Object);
 
@@ -64,6 +61,12 @@ namespace Solucao.Tests
             });
 
             cityRepositoryMock.Setup(repo => repo.Add(It.IsAny<List<City>>())).Returns(Task.FromResult<ValidationResult>(validationResult));
+
+        }
+
+        [Fact]
+        public async Task AddIBGECitiesList_Success()
+        {
 
             var cityService = new CityService(stateRepositoryMock.Object, cityRepositoryMock.Object, mockHttpClientFactory.Object);
 
@@ -78,13 +81,6 @@ namespace Solucao.Tests
         [Fact]
         public async Task AddIBGECitiesList_Error()
         {
-            // Arrange
-            var stateRepositoryMock = new Mock<StateRepository>();
-            var cityRepositoryMock = new Mock<CityRepository>();
-            var httpClientFactoryMock = new Mock<IHttpClientFactory>();
-
-            var handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.NotFound);
 
             handlerMock
@@ -96,20 +92,6 @@ namespace Solucao.Tests
                 )
                 .ReturnsAsync(httpResponseMessage)
                 .Verifiable();
-
-
-            var httpClientMock = new Mock<HttpClient>(handlerMock.Object);
-
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-
-            mockHttpClientFactory.Setup(_ => _.CreateClient(string.Empty)).Returns(httpClientMock.Object);
-
-            stateRepositoryMock.Setup(repo => repo.GetAll()).Returns(new List<State>
-            {
-                new State { Id = 1 },
-                new State { Id = 2 }
-            });
-
 
             var cityService = new CityService(stateRepositoryMock.Object, cityRepositoryMock.Object, mockHttpClientFactory.Object);
             // Act
