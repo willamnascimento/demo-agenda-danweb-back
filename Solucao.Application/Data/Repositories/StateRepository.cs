@@ -32,7 +32,7 @@ namespace Solucao.Application.Data.Repositories
             return Db.States.ToList();
         }
 
-        public async Task<ValidationResult> Add(State state)
+        public virtual async Task<ValidationResult> Add(State state)
         {
             try
             {

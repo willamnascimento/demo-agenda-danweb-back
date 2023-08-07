@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Net;
-using System.Net.Http;
 using Moq;
 using Moq.Protected;
 using Solucao.Application.Data;
@@ -10,29 +9,26 @@ using Solucao.Application.Service.Implementations;
 
 namespace Solucao.Tests
 {
-    public class CityServiceTests
+    public class StateServiceTests
     {
         private Mock<SolucaoContext> contextMock;
         private Mock<StateRepository> stateRepositoryMock;
-        private Mock<CityRepository> cityRepositoryMock;
-        private Mock<IHttpClientFactory> httpClientFactoryMock;
         private Mock<HttpMessageHandler> handlerMock;
         private Mock<IHttpClientFactory> mockHttpClientFactory;
         private Mock<HttpClient> httpClientMock;
 
-        public CityServiceTests()
+        public StateServiceTests()
         {
             handlerMock = new Mock<HttpMessageHandler>(MockBehavior.Strict);
             contextMock = new Mock<SolucaoContext>();
             stateRepositoryMock = new Mock<StateRepository>();
-            cityRepositoryMock = new Mock<CityRepository>();
-            httpClientFactoryMock = new Mock<IHttpClientFactory>();
 
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.OK);
+
             dynamic json = new[]
             {
-                new { id = 1, nome = "City1" },
-                new { id = 2, nome = "City2" }
+                new { id = 1, nome = "Parana", sigla = "PR" },
+                new { id = 2, nome = "São Paulo", sigla = "SP" }
             };
 
             httpResponseMessage.Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(json));
@@ -54,34 +50,28 @@ namespace Solucao.Tests
 
             mockHttpClientFactory.Setup(_ => _.CreateClient(string.Empty)).Returns(httpClientMock.Object);
 
-            stateRepositoryMock.Setup(repo => repo.GetAll()).Returns(new List<State>
-            {
-                new State { Id = 1 },
-                new State { Id = 2 }
-            });
-
-            cityRepositoryMock.Setup(repo => repo.Add(It.IsAny<List<City>>())).Returns(Task.FromResult<ValidationResult>(validationResult));
-
+            stateRepositoryMock.Setup(repo => repo.Add(It.IsAny<State>())).Returns(Task.FromResult<ValidationResult>(validationResult));
         }
 
         [Fact]
-        public async Task AddIBGECitiesList_Success()
+        public async Task AddIBGEStatesList_Success()
         {
+            // Arrange
 
-            var cityService = new CityService(stateRepositoryMock.Object, cityRepositoryMock.Object, mockHttpClientFactory.Object);
+            var stateService = new StateService(stateRepositoryMock.Object, mockHttpClientFactory.Object);
 
             // Act
-            var result = await cityService.AddIBGECitiesList();
+            var result = await stateService.AddIBGEStatesList();
 
             // Assert
-            Assert.NotNull(result);
-            cityRepositoryMock.Verify(repo => repo.Add(It.IsAny<List<City>>()), Times.Exactly(2));
+            Assert.Equal(ValidationResult.Success, result);
+            stateRepositoryMock.Verify(repo => repo.Add(It.IsAny<State>()), Times.Exactly(2));
         }
 
         [Fact]
-        public async Task AddIBGECitiesList_Error()
+        public async Task AddIBGEStatesList_Error()
         {
-            //Arrange
+            // Arrange
             var httpResponseMessage = new HttpResponseMessage(HttpStatusCode.NotFound);
 
             handlerMock
@@ -94,13 +84,14 @@ namespace Solucao.Tests
                 .ReturnsAsync(httpResponseMessage)
                 .Verifiable();
 
-            var cityService = new CityService(stateRepositoryMock.Object, cityRepositoryMock.Object, mockHttpClientFactory.Object);
+            var stateService = new StateService(stateRepositoryMock.Object, mockHttpClientFactory.Object);
+
             // Act
-            var result = await cityService.AddIBGECitiesList();
+            var result = await stateService.AddIBGEStatesList();
 
             // Assert
             Assert.Equal(HttpStatusCode.NotFound.ToString(), result.ErrorMessage);
-            cityRepositoryMock.Verify(repo => repo.Add(It.IsAny<List<City>>()), Times.Never);
+            stateRepositoryMock.Verify(repo => repo.Add(It.IsAny<State>()), Times.Never);
         }
     }
 }
