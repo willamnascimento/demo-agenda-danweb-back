@@ -18,6 +18,9 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --no-restore
+
+    - name: Test
+      run: dotnet test
       
     - name: build image and push to docker hub
       uses: docker/build-push-action@v1.1.0
