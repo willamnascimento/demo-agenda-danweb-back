@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using Moq;
 using Solucao.Application.AutoMapper;
@@ -10,7 +7,6 @@ using Solucao.Application.Data;
 using Solucao.Application.Data.Entities;
 using Solucao.Application.Data.Repositories;
 using Solucao.Application.Service.Interfaces;
-using Xunit;
 
 namespace Solucao.Tests
 {
