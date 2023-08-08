@@ -22,29 +22,29 @@ namespace Solucao.Application.Data.Repositories
             DbSet = Db.Set<Specification>();
         }
 
-        public async Task<IEnumerable<Specification>> GetAll()
+        public virtual async Task<IEnumerable<Specification>> GetAll()
         {
             return await Db.Specifications.Include(x => x.EquipamentSpecifications).ToListAsync();
         }
 
-        public async Task<Specification> GetById(Guid Id)
+        public virtual async Task<Specification> GetById(Guid Id)
         {
             return await Db.Specifications.FindAsync(Id);
         }
 
-        public async Task<Specification> GetSingleSpec()
+        public virtual async Task<Specification> GetSingleSpec()
         {
             return await Db.Specifications.FirstOrDefaultAsync(x => x.Single && x.Active);
         }
 
-        public async Task<bool> SingleIsValid(Guid? id)
+        public virtual async Task<bool> SingleIsValid(Guid? id)
         {
             if (id.HasValue)
                 return await Db.Specifications.AnyAsync(x => x.Id != id.Value && x.Active && x.Single);
             return await Db.Specifications.AnyAsync(x => x.Active && x.Single);
         }
 
-        public async Task<List<Specification>> GetSpecificationByEquipament(List<Guid> equipamentIds)
+        public virtual async Task<List<Specification>> GetSpecificationByEquipament(List<Guid> equipamentIds)
         {
 
             return await (from specification in Db.EquipamentSpecifications
@@ -53,7 +53,7 @@ namespace Solucao.Application.Data.Repositories
                           select specification.Specification).Distinct().OrderBy(x => x.Name).ToListAsync();
         }
 
-        public async Task<List<Equipament>> GetSpecificationByEquipament2(List<Guid> equipamentIds, List<Guid> specificationIds)
+        public virtual async Task<List<Equipament>> GetSpecificationByEquipament2(List<Guid> equipamentIds, List<Guid> specificationIds)
         {
             return await Db.EquipamentSpecifications.Where(x => 
                           x.Active && equipamentIds.Contains(x.EquipamentId) &&
@@ -61,7 +61,7 @@ namespace Solucao.Application.Data.Repositories
 
         }
 
-        public async Task<ValidationResult> Add(Specification specification)
+        public virtual async Task<ValidationResult> Add(Specification specification)
         {
             try
             {
@@ -76,7 +76,7 @@ namespace Solucao.Application.Data.Repositories
             }
         }
 
-        public async Task<ValidationResult> Update(Specification specification)
+        public virtual async Task<ValidationResult> Update(Specification specification)
         {
             try
             {

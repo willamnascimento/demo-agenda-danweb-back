@@ -22,7 +22,12 @@ namespace Solucao.Application.Data.Repositories
             DbSet = Db.Set<City>();
         }
 
-        public async Task<ValidationResult> Add(List<City> list)
+        public CityRepository()
+        {
+
+        }
+
+        public virtual async Task<ValidationResult> Add(List<City> list)
         {
             try
             {

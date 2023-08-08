@@ -47,10 +47,6 @@ namespace Solucao.Application.Service.Implementations
                 return ValidationResult.Success;
             }
             return new ValidationResult(response.StatusCode.ToString());
-
-
         }
-
-      
     }
 }
