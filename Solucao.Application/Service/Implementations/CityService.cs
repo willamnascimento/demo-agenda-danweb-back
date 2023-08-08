@@ -3,12 +3,9 @@ using Newtonsoft.Json;
 using Solucao.Application.Data.Entities;
 using Solucao.Application.Data.Repositories;
 using Solucao.Application.Service.Interfaces;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Solucao.Application.Service.Implementations
@@ -18,6 +15,7 @@ namespace Solucao.Application.Service.Implementations
         private StateRepository stateRepository;
         private CityRepository cityRepository;
         private readonly IHttpClientFactory clientFactory;
+
         public CityService(StateRepository _stateRepository, CityRepository _cityRepository, IHttpClientFactory _clientFactory)
         {
             stateRepository = _stateRepository;

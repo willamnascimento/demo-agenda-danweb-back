@@ -1,4 +1,4 @@
-﻿{
+{
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -28,25 +28,23 @@
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "swagger",
+      "applicationUrl": "https://localhost:8091;http://localhost:8080",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "DbServer": "44.206.38.149",
-        "DbPort": "32593",
+        "DbServer": "localhost",
+        "DbPort": "1433",
         "DbUser": "SA",
         "Database": "SolucaoDB",
-        "Password": "S0luc@o2022",
+        "Password": "P@ssw0rd",
         "Development": "False",
         "LogPath": "/Users/will.i.am/logs"
-      },
-      "dotnetRunMessages": "true",
-      "applicationUrl": "https://localhost:8091;http://localhost:8080"
+      }
     },
     "Docker": {
       "commandName": "Docker",
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
-      "publishAllPorts": true,
-      "useSSL": true
+      "environmentVariables": {}
     }
   }
 }

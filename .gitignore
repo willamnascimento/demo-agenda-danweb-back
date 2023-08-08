@@ -351,4 +351,7 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
-
+.DS_Store
+**/.DS_Store
+Solucao.Test/coverage.json
+Solucao.Test/lcov.info

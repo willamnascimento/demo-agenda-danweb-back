@@ -22,12 +22,17 @@ namespace Solucao.Application.Data.Repositories
             DbSet = Db.Set<State>();
         }
 
-        public IEnumerable<State> GetAll()
+        public StateRepository()
+        {
+
+        }
+
+        public virtual IEnumerable<State> GetAll()
         {
             return Db.States.ToList();
         }
 
-        public async Task<ValidationResult> Add(State state)
+        public virtual async Task<ValidationResult> Add(State state)
         {
             try
             {

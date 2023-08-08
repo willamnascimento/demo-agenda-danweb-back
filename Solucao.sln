@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solucao.Application", "Solu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solucao.CrossCutting", "Solucao.CrossCutting\Solucao.CrossCutting.csproj", "{292896AC-FD07-4E54-9ACC-1A6726582053}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solucao.Test", "Solucao.Test\Solucao.Test.csproj", "{CE2C7885-63AC-4A87-92E7-02DD48B12CF1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{292896AC-FD07-4E54-9ACC-1A6726582053}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{292896AC-FD07-4E54-9ACC-1A6726582053}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{292896AC-FD07-4E54-9ACC-1A6726582053}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE2C7885-63AC-4A87-92E7-02DD48B12CF1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE2C7885-63AC-4A87-92E7-02DD48B12CF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE2C7885-63AC-4A87-92E7-02DD48B12CF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE2C7885-63AC-4A87-92E7-02DD48B12CF1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
