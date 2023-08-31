@@ -27,6 +27,8 @@ namespace Solucao.Application.Data.Mappings
 
             builder.Property(c => c.DriverId);
 
+            builder.Property(c => c.DriverCollectsId);
+
             builder.Property(c => c.TechniqueId);
 
             builder.Property(c => c.UserId)
@@ -62,7 +64,7 @@ namespace Solucao.Application.Data.Mappings
                 .HasColumnType("bit");
 
             builder.Property(c => c.TemporaryName)
-                .HasColumnType("varchar(50)");
+                .HasColumnType("varchar(250)");
 
             builder.Property(c => c.TravelOn)
                 .HasColumnType("int");

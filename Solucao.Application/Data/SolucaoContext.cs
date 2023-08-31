@@ -75,6 +75,9 @@ namespace Solucao.Application.Data
                 .HasOne(e => e.Driver);
 
             modelBuilder.Entity<Calendar>()
+                .HasOne(e => e.DriverCollects);
+
+            modelBuilder.Entity<Calendar>()
                 .HasOne(e => e.Technique);
 
             modelBuilder.Entity<Calendar>()
